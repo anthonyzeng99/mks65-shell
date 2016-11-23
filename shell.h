@@ -5,7 +5,7 @@
 
 char * get_line();
 
-char * parse_line();
+char ** parse_line(char * line);
 
 char * parse_command();
 
