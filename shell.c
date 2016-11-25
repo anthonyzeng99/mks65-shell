@@ -12,7 +12,7 @@ char * get_line() {
   return line;
 }
 
-//divides the input into separate commands and separate commads by spaces
+//divides the input into separate commands and separate commands by spaces
 char ** parse_line(char * line) {
   char ** commands = (char **) calloc(100, sizeof(char *));
   char *command[50]; 
@@ -33,17 +33,18 @@ char ** parse_line(char * line) {
   //printf("%s\n", line);
   //printf("%d\n", i);
   return commands;*/
-  printf("BEFORE%s\n",line);
-  if (strchr(line,'\n')){//replace newline DOESSSS THIS EVEN WORRRRRRK???????????
-    strchr(line,'\n') == 0;
+
+  if (strchr(line,'\n')){//replace newline 
+    *strchr(line,'\n') = 0;
   }
-  printf("AFTER%s\n",line);
+
   while (line){
     command[i] = strsep(&line,";");//one command
     while (command[i]){
       parsed_command[j] = strsep(&command[i]," ");//separates command by spaces
       j++;
     }
+    //parsed_command[j] = NULL;
     commands[i] = *parsed_command;
     j = 0;
     i++;//go to next command
