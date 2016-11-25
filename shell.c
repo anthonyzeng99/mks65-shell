@@ -5,16 +5,21 @@
 
 #include "shell.h"
 
+//takes in input from terminal
 char * get_line() {
   char * line = (char *) calloc(100, sizeof(char));
   fgets(line, sizeof(line) - 1, stdin);
   return line;
 }
 
+//divides the input into separate commands and separate commads by spaces
 char ** parse_line(char * line) {
   char ** commands = (char **) calloc(100, sizeof(char *));
+  char *command[50]; 
+  char *parsed_command[50];
   int i = 0;
-  while (line) {
+  int j = 0;
+  /*while (line) {
     char *command[50] = strsep(&line,";");
     char *parsed_command[50];
     int j = 0;
@@ -27,12 +32,28 @@ char ** parse_line(char * line) {
   }
   //printf("%s\n", line);
   //printf("%d\n", i);
+  return commands;*/
+  printf("BEFORE%s\n",line);
+  if (strchr(line,'\n')){//replace newline DOESSSS THIS EVEN WORRRRRRK???????????
+    strchr(line,'\n') == 0;
+  }
+  printf("AFTER%s\n",line);
+  while (line){
+    command[i] = strsep(&line,";");//one command
+    while (command[i]){
+      parsed_command[j] = strsep(&command[i]," ");//separates command by spaces
+      j++;
+    }
+    commands[i] = *parsed_command;
+    j = 0;
+    i++;//go to next command
+  }
   return commands;
 }
 
-char * parse_command() {
+//char * parse_command() {
 
-}
+//}
 
 int main() {
   char * line = get_line();
