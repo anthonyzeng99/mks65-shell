@@ -7,65 +7,48 @@
 
 //takes in input from terminal
 char * get_line() {
-  char * line = (char *) calloc(100, sizeof(char));
-  fgets(line, sizeof(line) - 1, stdin);
+  int num_chars = 100;
+  char * line = (char *) calloc(num_chars, sizeof(char));
+  fgets(line, num_chars, stdin);
+ 
+  //removes newline 
+  if (strchr(line,'\n')){
+    *strchr(line,'\n') = 0;
+  }
+  
   return line;
 }
 
 //divides the input into separate commands and separate commands by spaces
 char ** parse_line(char * line) {
+  int num_commands = 100; //Number of commands in the array;
+  int num_chars = 100; //Number of characters in each command; 
   char ** commands = (char **) calloc(100, sizeof(char *));
-  char *command[50]; 
-  char *parsed_command[50];
+  
+  //Allocates memory for each command
+  int ctr = 0;
+  for (; ctr <= num_commands; ctr++) {
+    commands[ctr] = (char*) calloc(num_chars, sizeof(char));
+  }
+  
   int i = 0;
-  int j = 0;
-  /*while (line) {
-    char *command[50] = strsep(&line,";");
-    char *parsed_command[50];
-    int j = 0;
-    while (command) {
-      parsed_command[i] = strsep(&command," \n");
-      j++;
-    }
-    parsed_command[j - 1] = NULL;
+  while (line) {
+    commands[i] = strsep(&line,";");
     i++;
   }
-  //printf("%s\n", line);
-  //printf("%d\n", i);
-  return commands;*/
-
-  if (strchr(line,'\n')){//replace newline 
-    *strchr(line,'\n') = 0;
-  }
-
-  while (line){
-    command[i] = strsep(&line,";");//one command
-    while (command[i]){
-      parsed_command[j] = strsep(&command[i]," ");//separates command by spaces
-      j++;
-    }
-    //parsed_command[j] = NULL;
-    commands[i] = *parsed_command;
-    j = 0;
-    i++;//go to next command
-  }
+    
   return commands;
 }
 
-//char * parse_command() {
-
-//}
-
 int main() {
-  char * line = get_line();
+  char * line = get_line();  
   char ** commands = parse_line(line);
 
 
   printf("0:%s\n", commands[0]);
   printf("1:%s\n", commands[1]);
   printf("2:%s\n", commands[2]);
-  //  printf("%s\n", commands[2]);
-  
+    
   /*
   int i = 0;
   while (commands[i]) {
