@@ -73,15 +73,27 @@ void redir_run_command(char * command, char direction) {
   char * fd1 = strsep(&command, &direction);
   char * fd2 = strsep(&command, &direction);
 
-  //parsed fd1 and fd2
-  char * pfd1 = *parse_command(fd1);
-  char * pfd2 = *parse_command(fd2);
-
-  if (direction == '>') {
-    dup2(pfd1,pfd2);
-  } else if (direction == '<') {
-    dup2(pfd2,pfd1);
+  int file;
+  char ** cmd_arr;
+  if (direction == '<') {
+     file = open(fd1, O_WRONLY | O_CREAT, 0644);
+     cmd_arr = parse_command(fd2);
+  } else if (direction == '>') {
+     file = open(fd2, O_WRONLY | O_CREAT, 0644);
+     cmd_arr = parse_command(fd1);
   }
+
+  dup2(1, 5);
+  dup2(file, 1);
+
+  int pid = fork();
+  int status;
+  if (pid == 0) {
+    execvp(cmd_arr[0], cmd_arr);
+  }
+  wait(&status);
+
+  dup2(5, 1);
 }
 
 void pipe_run_command(char * command) {
