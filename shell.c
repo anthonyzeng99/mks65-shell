@@ -1,6 +1,9 @@
+#include <fcntl.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <sys/types.h>
+#include <sys/wait.h>
 #include <unistd.h>
 
 #include "shell.h"
@@ -39,36 +42,80 @@ char ** parse_line(char * line) {
 }
 
 //parses command
-//returns parsed command
-char * parse_command(char * command) {
-  char * parsed_command = (char *) malloc(100);
+//returns pointer to array of parsed commands
+char ** parse_command(char * command) {
+  char ** parsed_command = (char **) calloc(100, sizeof(char));
 
   int i = 0; 
-  while (i) {
+  while (command) {
     parsed_command[i] = strsep(&command, " \n ");
     i++;
   }
-  parsed_command[i - 1] = NULL;
+  parsed_command[i] = NULL;
 
   return parsed_command;
+}
+
+void run_command(char * command) {
+  char ** parsed_command = parse_command(command);
+
+    int pid = fork();
+    int status;
+    if (pid == 0) {
+      execvp(parsed_command[0], parsed_command);
+    } 
+    wait(&status);
+
+    free(parsed_command);
+}
+
+void redir_run_command(char * command, char direction) {
+  char * fd1 = strsep(&command, &direction);
+  char * fd2 = strsep(&command, &direction);
+
+  //parsed fd1 and fd2
+  char * pfd1 = *parse_command(fd1);
+  char * pfd2 = *parse_command(fd2);
+
+  if (direction == '>') {
+    dup2(pfd1,pfd2);
+  } else if (direction == '<') {
+    dup2(pfd2,pfd1);
+  }
+}
+
+void pipe_run_command(char * command) {
+
 }
 
 int main() {
   char * line = get_line();  
   char ** commands = parse_line(line);
 
-  /*
   int command_ctr = 0; 
   while (commands[command_ctr]) {
-    char * parsed_command = parse_command(commands[command_ctr]);
-    execvp(parsed_command[0], parsed_command);
-    command_ctr++;
-  }
-  */
+    char * command = commands[command_ctr];
 
-  printf("0:%s\n", commands[0]);
-  printf("1:%s\n", commands[1]);
-  printf("2:%s\n", commands[2]);
-    
-  
+    if (strchr(command, '<')) {
+
+      redir_run_command(command, '<');
+
+    } else if (strchr(command, '>')) {
+
+      redir_run_command(command, '>');
+
+    } else if (strchr(command, '|')) {
+
+      printf("pipe\n");
+
+    } else {
+      run_command(command);
+    } 
+
+    command_ctr++;
+
+  }   
+  free(line);
+  free(commands);
+
 }
