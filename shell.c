@@ -31,11 +31,11 @@ char ** parse_line(char * line) {
   char ** commands = (char **) calloc(100, sizeof(char *)); //Allocates an ar
   
   //Parses and allocates memory for each command
-  int command_ctr = 0;
+  int i = 0;
   while (line) {
-    commands[command_ctr] = (char*) calloc(num_chars, sizeof(char));
-    commands[command_ctr] = strsep(&line,";");
-    command_ctr++;
+    commands[i] = (char*) calloc(num_chars, sizeof(char));
+    commands[i] = strsep(&line,";");
+    i++;
   }
     
   return commands;
@@ -48,14 +48,12 @@ char ** parse_command(char * command) {
 
   int i = 0; 
   while (command) {
-    parsed_command[i] = strsep(&command, " \n ");
-    if (strncmp(&parsed_command[i][0], " ", 1) == 0) {
-      parsed_command[i] = &parsed_command[i][1];
-    }
+    while (command[0] == ' ') command++;
+    parsed_command[i] = strsep(&command, " ");
     i++;
   }
-  parsed_command[i] = NULL;
-
+    parsed_command[i] = NULL;
+  
   return parsed_command;
 }
 
