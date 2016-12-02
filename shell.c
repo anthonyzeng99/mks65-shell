@@ -59,6 +59,7 @@ char ** parse_command(char * command) {
   return parsed_command;
 }
 
+//runs command without redirection
 void run_command(char * command) {
   char ** parsed_command = parse_command(command);
 
@@ -72,6 +73,7 @@ void run_command(char * command) {
     free(parsed_command);
 }
 
+//runs command with < and > redirection
 void redir_run_command(char * command, char direction) {
   char * cmd1 = strsep(&command, &direction);
   char * cmd2 = strsep(&command, &direction);
@@ -86,8 +88,8 @@ void redir_run_command(char * command, char direction) {
      cmd_arr = parse_command(cmd1);
   }
 
-  dup2(1, 5);
-  dup2(file, 1);
+  dup2(STDOUT_FILENO, 5);
+  dup2(file, STDOUT_FILENO);
 
   int pid = fork();
   int status;
@@ -96,32 +98,48 @@ void redir_run_command(char * command, char direction) {
   }
   wait(&status);
 
-  dup2(5, 1);
+  dup2(5, STDOUT_FILENO);
 }
 
+//runs command with | redirection
 void pipe_run_command(char * command) {
+  char * cmd0 = strsep(&command, "|");
   char * cmd1 = strsep(&command, "|");
-  char * cmd2 = strsep(&command, "|");
 
-  int file = open(cmd1, O_WRONLY | O_CREAT, 0644);
+  char ** cmd_arr0 = parse_command(cmd0);
+  char ** cmd_arr1 = parse_command(cmd1);
 
-  char ** cmd_arr = parse_command(cmd2);
+  int pipe_num[2];
+  pipe(pipe_num);
+  
+  int pid0 = fork();
+  int status0;
+  if (pid0 == 0) {
+    dup2(STDOUT_FILENO, 5);
+    dup2(pipe_num[1], STDOUT_FILENO);
+    close(pipe_num[0]);
+    close(pipe_num[1]);
 
-  //redirects stdout to stdin
-  dup2(1, 5);
-  dup2(0, 1);
+    execvp(cmd_arr0[0], cmd_arr0);
 
-  int pid = fork();
-  int status;
-  if (pid == 0) {
-    execvp(cmd_arr[0], cmd_arr);
   }
-  wait(&status);
 
-  //restores stdin and stdout
-  dup2(1, 0);
-  dup2(5, 1);
+  int pid1 = fork();
+  int status1;
+  if (pid1 == 0) {
+    dup2(STDIN_FILENO,6);
+    dup2(pipe_num[0], STDIN_FILENO);
+    close(pipe_num[1]);
+    close(pipe_num[0]);
 
+    execvp(cmd_arr1[0], cmd_arr1);
+  }
+
+  close(pipe_num[0]);
+  close(pipe_num[1]);
+  wait(&status0);
+  wait(&status1);
+  
 }
 
 
@@ -143,7 +161,7 @@ int main() {
 
     } else if (strchr(command, '|')) {
 
-      printf("pipe\n");
+      pipe_run_command(command);
 
     } else {
       run_command(command);
