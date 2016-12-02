@@ -49,6 +49,9 @@ char ** parse_command(char * command) {
   int i = 0; 
   while (command) {
     parsed_command[i] = strsep(&command, " \n ");
+    if (strncmp(&parsed_command[i][0], " ", 1) == 0) {
+      parsed_command[i] = &parsed_command[i][1];
+    }
     i++;
   }
   parsed_command[i] = NULL;
@@ -70,17 +73,17 @@ void run_command(char * command) {
 }
 
 void redir_run_command(char * command, char direction) {
-  char * fd1 = strsep(&command, &direction);
-  char * fd2 = strsep(&command, &direction);
+  char * cmd1 = strsep(&command, &direction);
+  char * cmd2 = strsep(&command, &direction);
 
   int file;
   char ** cmd_arr;
   if (direction == '<') {
-     file = open(fd1, O_WRONLY | O_CREAT, 0644);
-     cmd_arr = parse_command(fd2);
+     file = open(cmd1, O_WRONLY | O_CREAT, 0644);
+     cmd_arr = parse_command(cmd2);
   } else if (direction == '>') {
-     file = open(fd2, O_WRONLY | O_CREAT, 0644);
-     cmd_arr = parse_command(fd1);
+     file = open(cmd2, O_WRONLY | O_CREAT, 0644);
+     cmd_arr = parse_command(cmd1);
   }
 
   dup2(1, 5);
@@ -97,8 +100,30 @@ void redir_run_command(char * command, char direction) {
 }
 
 void pipe_run_command(char * command) {
+  char * cmd1 = strsep(&command, "|");
+  char * cmd2 = strsep(&command, "|");
+
+  int file = open(cmd1, O_WRONLY | O_CREAT, 0644);
+
+  char ** cmd_arr = parse_command(cmd2);
+
+  //redirects stdout to stdin
+  dup2(1, 5);
+  dup2(0, 1);
+
+  int pid = fork();
+  int status;
+  if (pid == 0) {
+    execvp(cmd_arr[0], cmd_arr);
+  }
+  wait(&status);
+
+  //restores stdin and stdout
+  dup2(1, 0);
+  dup2(5, 1);
 
 }
+
 
 int main() {
   char * line = get_line();  
