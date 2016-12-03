@@ -8,8 +8,12 @@
 
 #include "shell.h"
 
-//takes in input from terminal
-//returns pointer to input
+/*======== char * get_line() ==========
+	Inputs: 
+	Returns: pointer to input
+
+	takes in input from the terminal 
+	====================*/
 char * get_line() {
   int num_chars = 100;
   char * line = (char *) calloc(num_chars, sizeof(char));
@@ -23,8 +27,12 @@ char * get_line() {
   return line;
 }
 
-//divides the input into separate commands
-//returns pointer to array of commands
+/*======== char ** parse_line() ==========
+	Inputs:  char *line 
+	Returns: pointer to array of commands
+
+	divides the input into separate commands by ;
+	====================*/
 char ** parse_line(char * line) {
   int num_commands = 100; //Number of commands in the array;
   int num_chars = 100; //Number of characters in each command; 
@@ -41,8 +49,12 @@ char ** parse_line(char * line) {
   return commands;
 }
 
-//parses command
-//returns pointer to array of parsed commands
+/*======== char ** parse_command() ==========
+	Inputs:  char *command
+	Returns: pointer to array of parsed commands
+
+	parses command by separating by spaces
+	====================*/
 char ** parse_command(char * command) {
   char ** parsed_command = (char **) calloc(100, sizeof(char));
 
@@ -57,7 +69,12 @@ char ** parse_command(char * command) {
   return parsed_command;
 }
 
-//runs command without redirection
+/*======== void run_command(() ==========
+	Inputs:  char *command
+	Returns:
+
+	runs command without redirection or pipes
+	====================*/
 void run_command(char * command) {
   char ** parsed_command = parse_command(command);
 
@@ -71,7 +88,12 @@ void run_command(char * command) {
     free(parsed_command);
 }
 
-//runs command with < and > redirection
+/*======== void redir_run_command() ==========
+	Inputs:  char *command, char direction
+	Returns: 
+
+	runs command with <  and > redirection
+	====================*/
 void redir_run_command(char * command, char direction) {
   char * cmd1 = strsep(&command, &direction);
   char * cmd2 = strsep(&command, &direction);
@@ -99,7 +121,12 @@ void redir_run_command(char * command, char direction) {
   dup2(5, STDOUT_FILENO);
 }
 
-//runs command with | redirection
+/*======== void pipe_run_command() ==========
+	Inputs:  char *command
+	Returns: 
+
+	runs command with | redirection
+	====================*/
 void pipe_run_command(char * command) {
   char * cmd0 = strsep(&command, "|");
   char * cmd1 = strsep(&command, "|");
