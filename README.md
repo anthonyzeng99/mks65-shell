@@ -12,7 +12,8 @@ by Anthony Zeng and Lucy Tang
 
 
 **Bugs:**
-
+*chdir doesn't change directories
+*some command don't run with space before or after them
 
 **Files & Function Headers:**
 * shell.c
