@@ -43,6 +43,16 @@ char ** parse_line(char * line) {
   while (line) {
     commands[i] = (char*) calloc(num_chars, sizeof(char));
     commands[i] = strsep(&line,";");
+
+    //removes spaces at the beginning
+    while (commands[0][0] == ' ') commands[0]++;
+
+    //remove space at the end
+    int cmd_len = strlen(commands[i]);
+    if (commands[i][cmd_len - 1] == ' ') {
+        commands[i][cmd_len - 1] = 0;
+    } 
+
     i++;
   }
     
@@ -61,7 +71,14 @@ char ** parse_command(char * command) {
   int i = 0; 
   while (command) {
     while (command[0] == ' ') command++;
-    parsed_command[i] = strsep(&command, " ");
+
+    parsed_command[i] = strsep(&command, "  ");
+    while (parsed_command[i][0] == ' ') parsed_command[i]++;
+
+    int cmd_len = strlen(parsed_command[i]);
+    if (parsed_command[i][cmd_len - 1] == ' ') {
+        parsed_command[i][cmd_len - 1] = 0;
+    }
     i++;
   }
     parsed_command[i] = NULL;
@@ -78,6 +95,25 @@ char ** parse_command(char * command) {
 void run_command(char * command) {
   char ** parsed_command = parse_command(command);
 
+  if (strcmp(parsed_command[0], "exit") == 0) {
+    exit(0);
+  } else if (strcmp(parsed_command[0], "cd") == 0) {
+
+    //if cd ~
+    if (strcmp(parsed_command[1], "~") == 0) {
+      chdir(getenv("HOME"));
+      exit(0);
+    }
+
+    char path[100];
+    strcat(path, parsed_command[1]);
+    strcat(path, "/");
+    
+    chdir(path);
+    exit(0);
+  }
+
+    //if command if not exit or cd
     int pid = fork();
     int status;
     if (pid == 0) {
@@ -95,9 +131,11 @@ void run_command(char * command) {
 	runs command with <  and > redirection
 	====================*/
 void redir_run_command(char * command, char direction) {
+  //separates each command from "<" or ">"
   char * cmd1 = strsep(&command, &direction);
   char * cmd2 = strsep(&command, &direction);
 
+  //opens file to write to and parses command
   int file;
   char ** cmd_arr;
   if (direction == '<') {
@@ -108,9 +146,11 @@ void redir_run_command(char * command, char direction) {
      cmd_arr = parse_command(cmd1);
   }
 
+  //redirects stdout to file
   dup2(STDOUT_FILENO, 5);
   dup2(file, STDOUT_FILENO);
 
+  //creates child process and runs command
   int pid = fork();
   int status;
   if (pid == 0) {
@@ -118,6 +158,8 @@ void redir_run_command(char * command, char direction) {
   }
   wait(&status);
 
+
+  //restores stdout
   dup2(5, STDOUT_FILENO);
 }
 
@@ -128,15 +170,19 @@ void redir_run_command(char * command, char direction) {
 	runs command with | redirection
 	====================*/
 void pipe_run_command(char * command) {
+  //separates each command from '|'
   char * cmd0 = strsep(&command, "|");
   char * cmd1 = strsep(&command, "|");
 
+  //parses each command
   char ** cmd_arr0 = parse_command(cmd0);
   char ** cmd_arr1 = parse_command(cmd1);
 
+  //creates pipe
   int pipe_num[2];
   pipe(pipe_num);
   
+  //creates child process and runs first command
   int pid0 = fork();
   int status0;
   if (pid0 == 0) {
@@ -149,6 +195,7 @@ void pipe_run_command(char * command) {
 
   }
 
+  //creates process and runs second command
   int pid1 = fork();
   int status1;
   if (pid1 == 0) {
@@ -169,6 +216,7 @@ void pipe_run_command(char * command) {
 
 
 int main() {
+
   char * line = get_line();  
   char ** commands = parse_line(line);
 
