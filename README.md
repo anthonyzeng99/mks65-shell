@@ -1,21 +1,21 @@
 # mks65-shell
 by Anthony Zeng and Lucy Tang
 
-###Features:###
+*Features:*
     *gets input and parses the commands
     *executes commands
     *executes commands with < and > redirection
     *executes commands with | redirection
 	
 
-###Attempted:###
+*Attempted:*
 
 
-###Bugs:###
+*Bugs:*
 
 	
-###Files & Function Headers:###
-shell.c
+*Files & Function Headers:*
+*shell.c
 	*Handles all line parsing and executing functions
 	
 	/*======== char * get_line() ==========
@@ -60,6 +60,6 @@ shell.c
 	runs command with | redirection
 	====================*/
 
-shell.h
+*shell.h
 	*Contains the header functions for shell.c
 	
