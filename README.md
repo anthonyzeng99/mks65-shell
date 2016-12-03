@@ -2,10 +2,10 @@
 by Anthony Zeng and Lucy Tang
 
 **Features:**
-*gets input and parses the commands
-*executes commands
-*executes commands with < and > redirection
-*executes commands with | redirection
+* gets input and parses the commands
+* executes commands
+* executes commands with < and > redirection
+* executes commands with | redirection
 	
 
 **Attempted:**
@@ -15,8 +15,8 @@ by Anthony Zeng and Lucy Tang
 
 	
 *Files & Function Headers:*
-*shell.c
-  *Handles all line parsing and executing functions
+* shell.c
+  * Handles all line parsing and executing functions
 	
 	/*======== char * get_line() ==========
 	Inputs: 
@@ -60,6 +60,6 @@ by Anthony Zeng and Lucy Tang
 	runs command with | redirection
 	====================*/
 
-*shell.h
-  *Contains the header functions for shell.c
+* shell.h
+  * Contains the header functions for shell.c
 	
